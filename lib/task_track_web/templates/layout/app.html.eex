@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Hello TaskTrack!</title>
+    <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
+  </head>
+
+  <body>
+    <div class="container">
+      <nav class="navbar fixed-top navbar-expand-sm navbar-dark bg-dark">
+        <%= link "Task Tracker", to: "/", class: "navbar-brand" %>
+        <ul class="navbar-nav mr-auto mt-2 mt-sm-0">
+          <!-- LEFT ALIGNED -->
+        </ul>
+        <ul class="navbar-nav mt-2 mt-sm-0">
+          <!-- RIGHT ALIGNED -->
+          <%= if @current_user do %>
+            <li class="nav-item disabled">
+              <span class="navbar-text text-warning">Hi, <%= @current_user.name %>!</span>
+            </li>
+            <li class="nav-item">
+              <%= link "Log Out", to: "/session", class: "nav-link", method: :delete %>
+            </li>
+          <% else %>
+            <li class="nav-item">
+              <%= link "Sign Up", to: user_path(@conn, :new), class: "nav-link" %>
+            </li>
+          <% end %>
+        </ul>
+      </nav>
+
+      <% info = get_flash(@conn, :info) %>
+      <% error = get_flash(@conn, :error) %>
+
+      <%= if info do %>
+        <p class="alert alert-info" role="alert"><%= info %></p>
+      <% end %>
+
+      <%= if error do %>
+        <p class="alert alert-danger" role="alert"><%= error %></p>
+      <% end %>
+
+      <main role="main">
+        <%= render @view_module, @view_template, assigns %>
+      </main>
+
+    </div> <!-- /container -->
+    <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+  </body>
+</html>
