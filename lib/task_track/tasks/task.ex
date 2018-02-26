@@ -23,7 +23,7 @@ defmodule TaskTrack.Tasks.Task do
                     :reporter_id, :time_worked, :completed])
     |> validate_required([:title, :description, :time_worked, :completed])
     |> validate_mod_15(:time_worked)
-    |> change_user_id_email(:assignee_id, :assignee_email)
+    |> change_user_id_email(:assignee_id, :assignee_email, :reporter_id)
     |> validate_user_id(:reporter_id)
   end
 
@@ -37,25 +37,28 @@ defmodule TaskTrack.Tasks.Task do
     end)
   end
 
-  def change_user_id_email(changeset, id_field, email_field) do
-    IO.inspect(changeset)
+  def change_user_id_email(changeset, id_field, email_field, reporter_field) do
     email = get_field(changeset, email_field)
     id = get_field(changeset, id_field)
+    reporter_id = get_field(changeset, reporter_field)
     cond do
       email == nil && id == nil ->
         add_error(changeset, email_field, "can't be blank")
       id != nil ->
         user = TaskTrack.Accounts.get_user(id)
-        case user do
-          nil -> add_error(changeset, email_field, "Invalid user")
-          _ -> change(changeset, %{email_field => user.email})
-        end
+        reporter_check(changeset, email_field, user.email, email_field, user, reporter_id)
       email != nil ->
         user = TaskTrack.Accounts.get_user_by_email(email)
-        case user do
-          nil -> add_error(changeset, email_field, "Invalid user")
-          _ -> change(changeset, %{id_field => user.id})
-        end
+        reporter_check(changeset, id_field, user.id, email_field, user, reporter_id)
+    end
+  end
+
+  def reporter_check(changeset, set_field, val, error_field, user, reporter_id) do
+    cond do
+      user == nil -> add_error(changeset, error_field, "Invalid user")
+      user.id == reporter_id || (user.manager && user.manager.id == reporter_id) ->
+        change(changeset, %{set_field => val})
+      true -> add_error(changeset, error_field, "You do not have permission to assign this task")
     end
   end
 

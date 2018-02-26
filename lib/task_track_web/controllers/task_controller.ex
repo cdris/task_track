@@ -14,19 +14,21 @@ defmodule TaskTrackWeb.TaskController do
 
   def new(conn, _params) do
     changeset = Tasks.change_task(%Task{})
-    users = TaskTrack.Accounts.list_users()
+    user = TaskTrack.Accounts.get_user(get_session(conn, :user_id))
+    users = [user | TaskTrack.Accounts.list_employees(user.id)]
     render(conn, "new.html", changeset: changeset, users: users)
   end
 
   def create(conn, %{"task" => task_params}) do
     task_params = Map.put(task_params, "reporter_id", get_session(conn, :user_id))
+    user = TaskTrack.Accounts.get_user(get_session(conn, :user_id))
     case Tasks.create_task(task_params) do
       {:ok, task} ->
         conn
         |> put_flash(:info, "Task created successfully.")
         |> redirect(to: task_path(conn, :index))
       {:error, %Ecto.Changeset{} = changeset} ->
-        users = TaskTrack.Accounts.list_users()
+        users = [user | TaskTrack.Accounts.list_employees(user.id)]
         render(conn, "new.html", changeset: changeset, users: users)
     end
   end
@@ -39,20 +41,22 @@ defmodule TaskTrackWeb.TaskController do
   def edit(conn, %{"id" => id}) do
     task = Tasks.get_task!(id)
     changeset = Tasks.change_task(task)
-    users = TaskTrack.Accounts.list_users()
+    user = TaskTrack.Accounts.get_user(get_session(conn, :user_id))
+    users = [user | TaskTrack.Accounts.list_employees(user.id)]
     render(conn, "edit.html", task: task, changeset: changeset, users: users)
   end
 
   def update(conn, %{"id" => id, "task" => task_params}) do
     task = Tasks.get_task!(id)
     task_params = Map.put(task_params, "reporter_id", get_session(conn, :user_id))
+    user = TaskTrack.Accounts.get_user(get_session(conn, :user_id))
     case Tasks.update_task(task, task_params) do
       {:ok, task} ->
         conn
         |> put_flash(:info, "Task updated successfully.")
         |> redirect(to: task_path(conn, :index))
       {:error, %Ecto.Changeset{} = changeset} ->
-        users = TaskTrack.Accounts.list_users()
+        users = [user | TaskTrack.Accounts.list_employees(user.id)]
         render(conn, "edit.html", task: task, changeset: changeset, users: users)
     end
   end
