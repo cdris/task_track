@@ -7,6 +7,8 @@ defmodule TaskTrack.Accounts.User do
   schema "users" do
     field :email, :string
     field :name, :string
+    field :level, :integer
+    belongs_to :manager, TaskTrack.Accounts.User
 
     timestamps()
   end
@@ -14,8 +16,9 @@ defmodule TaskTrack.Accounts.User do
   @doc false
   def changeset(%User{} = user, attrs) do
     user
-    |> cast(attrs, [:email, :name])
-    |> validate_required([:email, :name])
+    |> cast(attrs, [:email, :name, :level])
+    |> validate_required([:email, :name, :level])
     |> unique_constraint(:email)
+    |> validate_number(:level, greater_than: 0)
   end
 end

@@ -17,6 +17,17 @@
         <%= link "Task Tracker", to: "/", class: "navbar-brand" %>
         <ul class="navbar-nav mr-auto mt-2 mt-sm-0">
           <!-- LEFT ALIGNED -->
+          <%= if @current_user do %>
+            <li class="nav-item">
+              <%= link "Tasks", to: "/", class: "nav-link" %>
+            </li>
+            <li class="nav-item">
+              <%= link "Profile", to: "/", class: "nav-link" %>
+            </li>
+            <li class="nav-item">
+              <%= link "Directory", to: "/", class: "nav-link" %>
+            </li>
+          <% end %>
         </ul>
         <ul class="navbar-nav mt-2 mt-sm-0">
           <!-- RIGHT ALIGNED -->
