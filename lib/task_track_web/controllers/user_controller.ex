@@ -29,7 +29,7 @@ defmodule TaskTrackWeb.UserController do
 
   def create(conn, %{"user" => user_params}) do
     case Accounts.create_user(user_params) do
-      {:ok, user} ->
+      {:ok, _user} ->
         conn
         |> put_flash(:info, "User created successfully.")
         |> redirect(to: "/")
@@ -40,7 +40,10 @@ defmodule TaskTrackWeb.UserController do
 
   def show(conn, %{"id" => id}) do
     user = Accounts.get_user!(id)
-    render(conn, "show.html", user: user)
+    path = user_path(conn, :show, user)
+    conn
+    |> put_session(:redir, path)
+    |> render("show.html", user: user)
   end
 
   def edit(conn, %{"id" => id}) do
@@ -70,4 +73,38 @@ defmodule TaskTrackWeb.UserController do
     |> put_flash(:info, "User deleted successfully.")
     |> redirect(to: user_path(conn, :index))
   end
+
+  def unmanage(conn, %{"id" => employee_id}) do
+    manage_help(conn, nil, employee_id)
+  end
+
+  def manage(conn, %{"id" => employee_id}) do
+    manage_help(conn, get_session(conn, :user_id), employee_id)
+  end
+
+  def manage_help(conn, new_manager, employee_id) do
+    IO.inspect(get_session(conn, :redir))
+    manager = Accounts.get_user!(get_session(conn, :user_id))
+    employee = Accounts.get_user!(employee_id)
+    redir = get_session(conn, :redir) || "/"
+    conn = delete_session(conn, :redir)
+
+    if manager.level > employee.level do
+      case Accounts.update_user(employee, %{manager_id: new_manager}) do
+        {:ok, _employee} ->
+          conn
+          |> put_flash(:info, "Manager updated successfully.")
+          |> redirect(to: redir)
+        {:error, _} ->
+          conn
+          |> put_flash(:error, "Unable to update manager.")
+          |> redirect(to: redir)
+      end
+    else
+      conn
+      |> put_flash(:error, "Your employee level is too low to set manager.")
+      |> redirect(to: redir)
+    end
+  end
+
 end

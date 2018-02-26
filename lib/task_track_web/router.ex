@@ -21,7 +21,11 @@ defmodule TaskTrackWeb.Router do
     get "/", PageController, :index
     post "/session", SessionController, :create
     delete "/session", SessionController, :delete
-    resources "/users", UserController, only: [:new, :create, :edit, :update, :show]
+    scope "/users" do
+      post "/manage/:id", UserController, :manage
+      post "/unmanage/:id", UserController, :unmanage
+    end
+    resources "/users", UserController, only: [:new, :create, :edit, :update, :show, :index]
     resources "/tasks", TaskController
   end
 

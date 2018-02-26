@@ -5,11 +5,16 @@
 <p><%= @user.level %></p>
 <h4>Manager:</h4>
 <%= if @user.manager do %>
-  <p><%= link @user.manager.name, to: user_path(@conn, :show, @user.manager) %></p>
+  <%= if @user.manager.id == @current_user.id do %>
+    <p>You are this user's manager.</p>
+    <%= button "Stop Managing this User", class: "btn btn-danger", to: user_path(@conn, :unmanage, @user) %>
+  <% else %>
+    <p><%= link @user.manager.name, to: user_path(@conn, :show, @user.manager) %></p>
+  <% end %>
 <% else %>
   <p>This employee does not currently have a manager.</p>
   <%= if @current_user.level > @user.level do %>
-    <%= button "Set Yourself as User's Manager", class: "btn btn-primary" %>
+    <%= button "Set Yourself as User's Manager", class: "btn btn-primary", to: user_path(@conn, :manage, @user) %>
   <% end %>
 <% end %>
 <h4>Employees:</h4>

@@ -16,7 +16,7 @@ defmodule TaskTrack.Accounts.User do
   @doc false
   def changeset(%User{} = user, attrs) do
     user
-    |> cast(attrs, [:email, :name, :level])
+    |> cast(attrs, [:email, :name, :level, :manager_id])
     |> validate_required([:email, :name, :level])
     |> unique_constraint(:email)
     |> validate_number(:level, greater_than: 0)
