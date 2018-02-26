@@ -1,18 +1,18 @@
-<h2>Show User</h2>
-
+<h1><%= @user.name %></h1>
+<h4>Email:</h4>
+<p><%= @user.email %></p>
+<h4>Employee Level:</h4>
+<p><%= @user.level %></p>
+<h4>Manager:</h4>
+<%= if @user.manager do %>
+  <p><%= link @user.manager.name, to: user_path(@conn, :show, @user.manager) %></p>
+<% else %>
+  <p>This employee does not currently have a manager.</p>
+  <%= if @current_user.level > @user.level do %>
+    <%= button "Set Yourself as User's Manager", class: "btn btn-primary" %>
+  <% end %>
+<% end %>
+<h4>Employees:</h4>
 <ul>
 
-  <li>
-    <strong>Email:</strong>
-    <%= @user.email %>
-  </li>
-
-  <li>
-    <strong>Name:</strong>
-    <%= @user.name %>
-  </li>
-
 </ul>
-
-<span><%= link "Edit", to: user_path(@conn, :edit, @user) %></span>
-<span><%= link "Back", to: user_path(@conn, :index) %></span>

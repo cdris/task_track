@@ -35,12 +35,19 @@ defmodule TaskTrack.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_user!(id) do
+    Repo.get!(User, id)
+    |> Repo.preload(:manager)
+  end
 
-  def get_user(id), do: Repo.get(User, id)
+  def get_user(id) do
+    Repo.get(User, id)
+    |> Repo.preload(:manager)
+  end
 
   def get_user_by_email(email) do
     Repo.get_by(User, email: email)
+    |> Repo.preload(:manager)
   end
 
   @doc """

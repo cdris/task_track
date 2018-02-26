@@ -1,5 +1,5 @@
-<h2>Edit User: <%= @current_user.name %></h2>
+<h2>Edit Profile</h2>
 
 <%= render "form.html", Map.put(assigns, :action, user_path(@conn, :update, @user)) %>
 
-<span><%= link "Cancel", to: "/" %></span>
+<span><%= link "Cancel", to: user_path(@conn, :show, @user) %></span>

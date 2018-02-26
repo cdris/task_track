@@ -22,9 +22,6 @@
               <%= link "Tasks", to: "/", class: "nav-link" %>
             </li>
             <li class="nav-item">
-              <%= link "Profile", to: "/", class: "nav-link" %>
-            </li>
-            <li class="nav-item">
               <%= link "Directory", to: "/", class: "nav-link" %>
             </li>
           <% end %>
@@ -34,6 +31,12 @@
           <%= if @current_user do %>
             <li class="nav-item disabled">
               <span class="navbar-text text-warning">Hi, <%= @current_user.name %>!</span>
+            </li>
+            <li class="nav-item">
+              <%= link "Profile", to: user_path(@conn, :show, @current_user), class: "nav-link" %>
+            </li>
+            <li class="nav-item">
+              <%= link "Edit", to: user_path(@conn, :edit, @current_user), class: "nav-link" %>
             </li>
             <li class="nav-item">
               <%= link "Log Out", to: "/session", class: "nav-link", method: :delete %>
