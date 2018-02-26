@@ -19,7 +19,13 @@ defmodule TaskTrack.Accounts do
   """
   def list_users do
     Repo.all(User)
-    |> Enum.map(fn(x) -> Repo.preload(x, :manager) end)
+    |> Repo.preload(:manager)
+  end
+
+  def list_employees(id) do
+    query = from u in User,
+            where: u.manager_id == ^id
+    Repo.all(query)
   end
 
   @doc """

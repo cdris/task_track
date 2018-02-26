@@ -43,10 +43,11 @@ defmodule TaskTrackWeb.UserController do
 
   def show(conn, %{"id" => id}) do
     user = Accounts.get_user!(id)
+    employees = Accounts.list_employees(id)
     path = user_path(conn, :show, user)
     conn
     |> put_session(:redir, path)
-    |> render("show.html", user: user)
+    |> render("show.html", user: user, employees: employees)
   end
 
   def edit(conn, %{"id" => id}) do
@@ -86,7 +87,6 @@ defmodule TaskTrackWeb.UserController do
   end
 
   def manage_help(conn, new_manager, employee_id) do
-    IO.inspect(get_session(conn, :redir))
     manager = Accounts.get_user!(get_session(conn, :user_id))
     employee = Accounts.get_user!(employee_id)
     redir = get_session(conn, :redir) || "/"

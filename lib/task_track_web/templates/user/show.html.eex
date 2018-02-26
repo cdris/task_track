@@ -19,5 +19,7 @@
 <% end %>
 <h4>Employees:</h4>
 <ul>
-
+  <%= for employee <- @employees do %>
+    <li><%= link employee.name, to: user_path(@conn, :show, employee) %></li>
+  <% end %>
 </ul>
