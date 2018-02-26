@@ -19,6 +19,7 @@ defmodule TaskTrack.Accounts do
   """
   def list_users do
     Repo.all(User)
+    |> Enum.map(fn(x) -> Repo.preload(x, :manager) end)
   end
 
   @doc """

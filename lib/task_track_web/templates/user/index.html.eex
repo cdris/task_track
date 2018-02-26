@@ -1,26 +1,34 @@
-<h2>Listing Users</h2>
+<h1>Listing Users</h1>
 
 <table class="table">
   <thead>
     <tr>
       <th>Email</th>
       <th>Name</th>
-
+      <th></th>
       <th></th>
     </tr>
   </thead>
   <tbody>
 <%= for user <- @users do %>
     <tr>
-      <td><%= user.email %></td>
-      <td><%= user.name %></td>
-
-      <td class="text-right">
-        <span><%= link "Profile", to: user_path(@conn, :show, user), class: "btn btn-default btn-xs" %></span>
+      <td class="col-4"><%= user.email %></td>
+      <td class="col-4"><%= user.name %></td>
+      <td class="col-2 text-right">
+        <%= if user.manager do %>
+          <%= if user.manager.id == @current_user.id do %>
+            <%= button "Stop Managing this User", class: "btn btn-danger btn-xs", to: user_path(@conn, :unmanage, user) %>
+          <% end %>
+        <% else %>
+          <%= if user.level < @current_user.level do %>
+            <%= button "Manage this User", class: "btn btn-primary btn-xs", to: user_path(@conn, :manage, user) %>
+          <% end %>
+        <% end %>
+      </td>
+      <td class="col-2 text-right">
+        <%= button "View Profile", to: user_path(@conn, :show, user), method: "get", class: "btn btn-secondary btn-xs" %>
       </td>
     </tr>
 <% end %>
   </tbody>
 </table>
-
-<span><%= link "New User", to: user_path(@conn, :new) %></span>

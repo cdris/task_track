@@ -19,7 +19,10 @@ defmodule TaskTrackWeb.UserController do
 
   def index(conn, _params) do
     users = Accounts.list_users()
-    render(conn, "index.html", users: users)
+    path = user_path(conn, :index)
+    conn
+    |> put_session(:redir, path)
+    |> render("index.html", users: users)
   end
 
   def new(conn, _params) do
