@@ -46,7 +46,7 @@
         <td><%= task.description %></td>
         <td><%= task.reporter.name %></td>
         <td><%= task.assignee.name %></td>
-        <td><%= time_worked(task.id) %></td>
+        <td><%= time_worked(task.id) %> minutes</td>
         <td>
           <div class="form-check">
             <input class="form-check-input" type="checkbox" value="" <%= if task.completed do %>checked<% end %> disabled>

@@ -4,6 +4,7 @@ defmodule TaskTrack.Tasks do
   """
 
   import Ecto.Query, warn: false
+  import DateTime
   alias TaskTrack.Repo
 
   alias TaskTrack.Tasks.Task
@@ -154,6 +155,12 @@ defmodule TaskTrack.Tasks do
             where: t.id == ^id,
             order_by: tb.start_time
     Repo.all(query)
+  end
+
+  def get_time_worked(id) do
+    list_time_blocks(id)
+    |> Enum.map(fn(x) -> DateTime.diff(x.end_time, x.start_time) end)
+    |> Enum.sum
   end
 
   @doc """

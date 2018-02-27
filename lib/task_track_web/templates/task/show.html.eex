@@ -48,9 +48,9 @@
   </thead>
   <tbody>
     <%= for block <- @time_blocks do %>
-      <tr>
-        <td><%= block.start_time %></td>
-        <td><%= block.end_time %></td>
+      <tr id="<%= block.id %>">
+        <td class="start-time"><%= format(block.start_time) %></td>
+        <td class="end-time"><%= format(block.end_time) %></td>
         <td><button class="btn btn-primary edit-time">Edit</button></td>
         <td><button class="btn btn-danger delete-time">Delete</button></td>
       </tr>
