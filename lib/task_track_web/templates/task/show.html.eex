@@ -1,38 +1,59 @@
-<h2>Show Task</h2>
+<script>
+  window.task_id = "<%= @task.id %>";
+</script>
 
-<ul>
+<div class="row">
+  <div class="col-10"><h1>Task</h1></div>
+  <div class="col-1">
+    <%= button "Edit", to: task_path(@conn, :edit, @task), method: "get", class: "btn btn-primary" %>
+  </div>
+  <div class="col-1">
+    <%= button "Delete", to: task_path(@conn, :delete, @task), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger" %>
+  </div>
+</div>
+<h4>Title:</h4>
+<p><%= @task.title %></p>
+<h4>Description:</h4>
+<p><%= @task.description %></p>
+<h4>Assignee:</h4>
+<%= link @task.assignee.name, to: user_path(@conn, :show, @task.assignee) %>
+<h4>Reporter:</h4>
+<%= link @task.reporter.name, to: user_path(@conn, :show, @task.reporter) %>
+<%= if @task.completed do %>
+  <h4>This task is complete.</h4>
+<% else %>
+  <h4>This task is incomplete.</h4>
+<% end %>
+<br>
+<div class="row">
+  <div class="col-8">
+    <h4>Time Worked:</h4>
+  </div>
+  <div class="col-2">
+    <button id="manual-add" class="btn btn-primary">Add Manually</button>
+  </div>
+  <div class="col-2">
+    <button id="tracker-add" class="btn btn-primary">Use Tracker</button>
+  </div>
+</div>
 
-  <li>
-    <strong>Title:</strong>
-    <%= @task.title %>
-  </li>
-
-  <li>
-    <strong>Description:</strong>
-    <%= @task.description %>
-  </li>
-
-  <li>
-    <strong>Assignee:</strong>
-    <%= @task.assignee.name %>
-  </li>
-
-  <li>
-    <strong>Reporter:</strong>
-    <%= @task.reporter.name %>
-  </li>
-
-  <li>
-    <strong>Time worked:</strong>
-    <%= @task.time_worked %>
-  </li>
-
-  <li>
-    <strong>Completed:</strong>
-    <%= @task.completed %>
-  </li>
-
-</ul>
-
-<span><%= link "Edit", to: task_path(@conn, :edit, @task) %></span>
-<span><%= link "Back", to: task_path(@conn, :index) %></span>
+<table id="time-table" class="table">
+  <thead>
+    <tr>
+      <th>Start Time</th>
+      <th>End Time</th>
+      <th></th>
+      <th></th>
+    <tr>
+  </thead>
+  <tbody>
+    <%= for block <- @time_blocks do %>
+      <tr>
+        <td><%= block.start_time %></td>
+        <td><%= block.end_time %></td>
+        <td><button class="btn btn-primary edit-time">Edit</button></td>
+        <td><button class="btn btn-danger delete-time">Delete</button></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

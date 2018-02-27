@@ -4,24 +4,28 @@
   </div>
 </div>
 
-<div class="row">
-  <div class="col" style="padding: 10px;">
-    <%= form_for @conn, task_path(@conn, :index), [as: :task_filter, method: "get"], fn f -> %>
-      <div class="form-check form-check-inline">
-        <%= checkbox f, :show_completed, class: "form-check-input" %>
-        <%= label f, :show_completed, class: "form-check-label" %>
-      </div>
-      <div class="form-check form-check-inline">
-        <%= checkbox f, :show_reported_by_you, class: "form-check-input" %>
-        <%= label f, :show_reported_by_you, class: "form-check-label" %>
-      </div>
-      <%= submit "Filter", class: "btn btn-primary btn-sm" %>
-    <% end %>
+<%= form_for @conn, task_path(@conn, :index), [as: :task_filter], fn f -> %>
+  <div class="row pl-3">
+    <div class="form-check col-3">
+      <%= radio_button f, :show_employee_tasks, false, class: "form-check-input", checked: !(@show_employee_tasks) %>
+      <%= label f, :show_your_tasks, class: "form-check-label"%>
+    </div>
+    <div class="form-check col-3">
+      <%= radio_button f, :show_employee_tasks, true, class: "form-check-input", checked: @show_employee_tasks %>
+      <%= label f, :show_employee_tasks, class: "form-check-label"%>
+    </div>
+    <div class="form-check col-3">
+      <%= checkbox f, :show_completed, class: "form-check-input" %>
+      <%= label f, :show_completed, class: "form-check-label", checked: @show_completed %>
+    </div>
+    <div class="col-1">
+      <%= submit "Filter", class: "btn btn-primary" %>
+    </div>
+    <div class="col-2 text-right">
+      <%= button "New Task", to: task_path(@conn, :new), class: "btn btn-primary", method: "get" %>
+    </div>
   </div>
-  <div class="col text-right">
-    <%= button "New Task", to: task_path(@conn, :new), class: "btn btn-primary", method: "get" %>
-  </div>
-</div>
+<% end %>
 
 <table class="table">
   <thead>
@@ -30,9 +34,8 @@
       <th>Description</th>
       <th>Reporter</th>
       <th>Assignee</th>
-      <th>Time worked</th>
+      <th>Time Worked</th>
       <th>Completed</th>
-      <th></th>
       <th></th>
     </tr>
   </thead>
@@ -43,18 +46,17 @@
         <td><%= task.description %></td>
         <td><%= task.reporter.name %></td>
         <td><%= task.assignee.name %></td>
-        <td><%= task.time_worked %></td>
+        <td><%= time_worked(task.id) %></td>
         <td>
           <div class="form-check">
             <input class="form-check-input" type="checkbox" value="" <%= if task.completed do %>checked<% end %> disabled>
           </div>
         </td>
 
-        <td>
-          <span><%= link "Edit", to: task_path(@conn, :edit, task), class: "btn btn-primary btn-xs" %></span>
+        <td class="text-right">
+          <%= link "View", to: task_path(@conn, :show, task), class: "btn btn-primary btn-xs" %>
         </td>
         <td>
-          <span><%= link "Delete", to: task_path(@conn, :delete, task), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %></span>
         </td>
       </tr>
     <% end %>

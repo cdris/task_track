@@ -7,7 +7,6 @@ defmodule TaskTrack.Tasks.Task do
   schema "tasks" do
     field :completed, :boolean, default: false
     field :description, :string
-    field :time_worked, :integer
     field :title, :string
     field :assignee_email, :string, virtual: true
     belongs_to :assignee, TaskTrack.Accounts.User
@@ -20,9 +19,8 @@ defmodule TaskTrack.Tasks.Task do
   def changeset(%Task{} = task, attrs) do
     task
     |> cast(attrs, [:title, :description, :assignee_id, :assignee_email,
-                    :reporter_id, :time_worked, :completed])
-    |> validate_required([:title, :description, :time_worked, :completed])
-    |> validate_mod_15(:time_worked)
+                    :reporter_id, :completed])
+    |> validate_required([:title, :description, :completed])
     |> change_user_id_email(:assignee_id, :assignee_email, :reporter_id)
     |> validate_user_id(:reporter_id)
   end

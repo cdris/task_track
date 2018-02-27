@@ -6,10 +6,19 @@ defmodule TaskTrackWeb.TaskController do
 
   def index(conn, params) do
     IO.inspect(params)
-    show_completed = params["task_filter"]["show_completed"] || false
-    show_reported_by_you = params["task_filter"]["show_reported_by_you"] || false
-    tasks = Tasks.list_tasks(get_session(conn, :user_id), show_completed, show_reported_by_you)
-    render(conn, "index.html", tasks: tasks)
+    show_completed = params["task_filter"]["show_completed"] == "true"
+    show_employee_tasks = params["task_filter"]["show_employee_tasks"] == "true"
+    user_id = get_session(conn, :user_id)
+    tasks = if show_employee_tasks do
+      Tasks.list_employee_tasks(user_id, show_completed)
+    else
+      Tasks.list_tasks(user_id, show_completed)
+    end
+    render(conn,
+           "index.html",
+           tasks: tasks,
+           show_employee_tasks: show_employee_tasks,
+           show_completed: show_completed)
   end
 
   def new(conn, _params) do
@@ -24,10 +33,12 @@ defmodule TaskTrackWeb.TaskController do
     user = TaskTrack.Accounts.get_user(get_session(conn, :user_id))
     case Tasks.create_task(task_params) do
       {:ok, task} ->
+        IO.puts("here")
         conn
         |> put_flash(:info, "Task created successfully.")
-        |> redirect(to: task_path(conn, :index))
+        |> redirect(to: task_path(conn, :show, task))
       {:error, %Ecto.Changeset{} = changeset} ->
+        IO.puts("err")
         users = [user | TaskTrack.Accounts.list_employees(user.id)]
         render(conn, "new.html", changeset: changeset, users: users)
     end
@@ -35,7 +46,8 @@ defmodule TaskTrackWeb.TaskController do
 
   def show(conn, %{"id" => id}) do
     task = Tasks.get_task!(id)
-    render(conn, "show.html", task: task)
+    time_blocks = Tasks.list_time_blocks(id)
+    render(conn, "show.html", task: task, time_blocks: time_blocks)
   end
 
   def edit(conn, %{"id" => id}) do
@@ -54,7 +66,7 @@ defmodule TaskTrackWeb.TaskController do
       {:ok, task} ->
         conn
         |> put_flash(:info, "Task updated successfully.")
-        |> redirect(to: task_path(conn, :index))
+        |> redirect(to: task_path(conn, :show, task))
       {:error, %Ecto.Changeset{} = changeset} ->
         users = [user | TaskTrack.Accounts.list_employees(user.id)]
         render(conn, "edit.html", task: task, changeset: changeset, users: users)

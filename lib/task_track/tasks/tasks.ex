@@ -7,6 +7,7 @@ defmodule TaskTrack.Tasks do
   alias TaskTrack.Repo
 
   alias TaskTrack.Tasks.Task
+  alias TaskTrack.Accounts.User
 
   @doc """
   Returns the list of tasks.
@@ -23,10 +24,23 @@ defmodule TaskTrack.Tasks do
     |> Repo.preload(:reporter)
   end
 
-  def list_tasks(id, complete, reported) do
+  def list_tasks(id, complete) do
     query = from t in Task,
             where: t.completed == false or ^complete,
-            where: t.assignee_id == ^id or (t.reporter_id == ^id and ^reported)
+            where: t.assignee_id == ^id
+    Repo.all(query)
+    |> Repo.preload(:assignee)
+    |> Repo.preload(:reporter)
+  end
+
+  def list_employee_tasks(id, complete) do
+    query = from t in Task,
+            join: u in User,
+            select: t,
+            where: t.assignee_id == u.id,
+            where: t.completed == false or ^complete,
+            where: u.manager_id == ^id,
+            where: t.reporter_id == ^id
     Repo.all(query)
     |> Repo.preload(:assignee)
     |> Repo.preload(:reporter)
@@ -115,5 +129,111 @@ defmodule TaskTrack.Tasks do
   """
   def change_task(%Task{} = task) do
     Task.changeset(task, %{})
+  end
+
+  alias TaskTrack.Tasks.TimeBlock
+
+  @doc """
+  Returns the list of time_blocks.
+
+  ## Examples
+
+      iex> list_time_blocks()
+      [%TimeBlock{}, ...]
+
+  """
+  def list_time_blocks do
+    Repo.all(TimeBlock)
+  end
+
+  def list_time_blocks(id) do
+    query = from tb in TimeBlock,
+            join: t in Task,
+            select: tb,
+            where: tb.task_id == t.id,
+            where: t.id == ^id,
+            order_by: tb.start_time
+    Repo.all(query)
+  end
+
+  @doc """
+  Gets a single time_block.
+
+  Raises `Ecto.NoResultsError` if the Time block does not exist.
+
+  ## Examples
+
+      iex> get_time_block!(123)
+      %TimeBlock{}
+
+      iex> get_time_block!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_time_block!(id), do: Repo.get!(TimeBlock, id)
+
+  @doc """
+  Creates a time_block.
+
+  ## Examples
+
+      iex> create_time_block(%{field: value})
+      {:ok, %TimeBlock{}}
+
+      iex> create_time_block(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_time_block(attrs \\ %{}) do
+    %TimeBlock{}
+    |> TimeBlock.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a time_block.
+
+  ## Examples
+
+      iex> update_time_block(time_block, %{field: new_value})
+      {:ok, %TimeBlock{}}
+
+      iex> update_time_block(time_block, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_time_block(%TimeBlock{} = time_block, attrs) do
+    time_block
+    |> TimeBlock.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a TimeBlock.
+
+  ## Examples
+
+      iex> delete_time_block(time_block)
+      {:ok, %TimeBlock{}}
+
+      iex> delete_time_block(time_block)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_time_block(%TimeBlock{} = time_block) do
+    Repo.delete(time_block)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking time_block changes.
+
+  ## Examples
+
+      iex> change_time_block(time_block)
+      %Ecto.Changeset{source: %TimeBlock{}}
+
+  """
+  def change_time_block(%TimeBlock{} = time_block) do
+    TimeBlock.changeset(time_block, %{})
   end
 end

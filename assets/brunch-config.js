@@ -50,7 +50,10 @@ exports.config = {
     },
     sass: {
       options: {
-        includePaths: ["node_modules/bootstrap/scss"],
+        includePaths: [
+          "node_modules/bootstrap/scss",
+          "node_modules/bootstrap-datetime-picker/css"
+        ],
         precision: 8
       }
     }
@@ -65,7 +68,11 @@ exports.config = {
   npm: {
     enabled: true,
     globals: {
-      $: 'jquery'
+      $: 'jquery',
+      jQuery: 'jquery'
+    },
+    styles: {
+      "bootstrap-datetime-picker": ["css/bootstrap-datetimepicker.css"]
     }
   }
 };

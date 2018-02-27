@@ -31,12 +31,6 @@
   </div>
 
   <div class="form-group">
-    <%= label f, :time_worked, class: "control-label" %>
-    <%= number_input f, :time_worked, class: "form-control", step: "15", min: "0"%>
-    <%= error_tag f, :time_worked %>
-  </div>
-
-  <div class="form-group">
     <%= label f, :completed, class: "control-label" %>
     <%= checkbox f, :completed, class: "checkbox" %>
     <%= error_tag f, :completed %>
