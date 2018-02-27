@@ -17,18 +17,10 @@ defmodule TaskTrack.Tasks.TimeBlock do
 
   @doc false
   def changeset(%TimeBlock{} = time_block, attrs) do
-    IO.puts("block")
-    IO.inspect(time_block)
-    IO.puts("attrs")
-    IO.inspect(attrs)
-
     attrs =
       attrs
       |> parse_datetime("start_time")
       |> parse_datetime("end_time")
-
-    IO.puts("attrs2")
-    IO.inspect(attrs)
 
     time_block
     |> cast(attrs, [:start_time, :end_time, :task_id])
@@ -40,12 +32,8 @@ defmodule TaskTrack.Tasks.TimeBlock do
     val = get(attrs, field)
     case Timex.parse(val, "{YYYY}-{0M}-{0D} {h24}:{m}") do
       {:ok, parsed} ->
-        IO.puts("parsed")
-        IO.inspect(parsed)
         put(attrs, field, parsed)
       _ ->
-        IO.puts("fail")
-        IO.inspect(val)
         attrs
     end
   end

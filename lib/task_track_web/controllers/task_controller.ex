@@ -5,7 +5,6 @@ defmodule TaskTrackWeb.TaskController do
   alias TaskTrack.Tasks.Task
 
   def index(conn, params) do
-    IO.inspect(params)
     show_completed = params["task_filter"]["show_completed"] == "true"
     show_employee_tasks = params["task_filter"]["show_employee_tasks"] == "true"
     user_id = get_session(conn, :user_id)
@@ -33,12 +32,10 @@ defmodule TaskTrackWeb.TaskController do
     user = TaskTrack.Accounts.get_user(get_session(conn, :user_id))
     case Tasks.create_task(task_params) do
       {:ok, task} ->
-        IO.puts("here")
         conn
         |> put_flash(:info, "Task created successfully.")
         |> redirect(to: task_path(conn, :show, task))
       {:error, %Ecto.Changeset{} = changeset} ->
-        IO.puts("err")
         users = [user | TaskTrack.Accounts.list_employees(user.id)]
         render(conn, "new.html", changeset: changeset, users: users)
     end

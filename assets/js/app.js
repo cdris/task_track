@@ -160,7 +160,6 @@ function createTime(body) {
 
 function updateTime(id, body) {
   let text = JSON.stringify(body);
-  console.log("/api/v1/time_blocks/" + id);
 
   $.ajax("/api/v1/time_blocks/" + id, {
     method: "put",
