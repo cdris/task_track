@@ -5,6 +5,9 @@ defmodule TaskTrack.Repo.Migrations.CreateUsers do
     create table(:users) do
       add :email, :string, null: false
       add :name, :string, null: false
+      add :password_hash, :string, null: false
+      add :pw_tries, :integer, null: false, default: 0
+      add :pw_last_try, :utc_datetime
 
       timestamps()
     end

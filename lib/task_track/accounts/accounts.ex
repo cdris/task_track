@@ -5,7 +5,6 @@ defmodule TaskTrack.Accounts do
 
   import Ecto.Query, warn: false
   alias TaskTrack.Repo
-
   alias TaskTrack.Accounts.User
 
   @doc """
@@ -41,6 +40,26 @@ defmodule TaskTrack.Accounts do
 
   def get_user_by_email(email) do
     Repo.get_by(User, email: email)
+  end
+
+  def get_and_auth_user(email, password) do
+    case get_user_by_email(email) do
+      nil -> {:no_such_user, nil}
+      user ->
+        cond do
+          user.pw_tries < 20 ->
+            case Comeonin.Argon2.check_pass(user, password) do
+              {:ok, user} -> {:ok, user}
+              _ ->
+                user
+                |> User.pw_attempt()
+                |> Repo.update()
+                {:login_failed, nil}
+            end
+          true ->
+            {:locked_out, nil}
+        end
+    end
   end
 
   @doc """
