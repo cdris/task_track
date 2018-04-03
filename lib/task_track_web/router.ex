@@ -15,6 +15,13 @@ defmodule TaskTrackWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :authenticated do
+    plug Guardian.Plug.Pipeline, module: TaskTrack.Guardian, error_handler: TaskTrackWeb.AuthErrorHandler
+    plug Guardian.Plug.VerifyHeader, realm: "Bearer"
+    plug Guardian.Plug.EnsureAuthenticated
+    plug Guardian.Plug.LoadResource
+  end
+
   scope "/", TaskTrackWeb do
     pipe_through :browser # Use the default browser stack
 
@@ -26,7 +33,13 @@ defmodule TaskTrackWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", TaskTrackWeb do
-  #   pipe_through :api
-  # end
+  scope "/api/v1", TaskTrackWeb do
+    pipe_through([:api])
+    post "/session", SessionController, :create_json
+  end
+
+  scope "/api/v1", TaskTrackWeb do
+    pipe_through([:api, :authenticated])
+    get "/session", SessionController, :get_json
+  end
 end

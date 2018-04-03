@@ -17,6 +17,16 @@ config :task_track, TaskTrackWeb.Endpoint,
   pubsub: [name: TaskTrack.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
+config :task_track, TaskTrack.Guardian,
+  issuer: "task_track",
+  ttl: {7, :days},
+  allowed_drift: 2000,
+  secret_key: "6D07ec2oKq7z/7Lm1qV35hnKNAWXmWHAnl0xpN2bp+rawr8Ip+qC1BmBZwZX6/mg"
+
+config :task_track, TaskTrackWeb.AuthAccessPipeline,
+  module: TaskTrack.Guardian,
+  error_handler: TaskTrackWeb.AuthErrorHandler
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

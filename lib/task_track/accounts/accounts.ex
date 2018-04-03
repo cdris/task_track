@@ -46,19 +46,9 @@ defmodule TaskTrack.Accounts do
     case get_user_by_email(email) do
       nil -> {:no_such_user, nil}
       user ->
-        cond do
-          user.pw_tries < 20 ->
-            case Comeonin.Argon2.check_pass(user, password) do
-              {:ok, user} -> {:ok, user}
-              _ ->
-                user
-                |> User.pw_attempt()
-                |> Repo.update()
-                {:login_failed, nil}
-            end
-          true ->
-            {:locked_out, nil}
-        end
+        {status, user} = User.pw_attempt(user, password)
+        {_, user} = Repo.update(user)
+        {status, user}
     end
   end
 

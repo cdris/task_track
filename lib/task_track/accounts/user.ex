@@ -40,26 +40,38 @@ defmodule TaskTrack.Accounts.User do
     end)
   end
 
-  def valid_password?(password) when byte_size(password) > 7 do
+  def valid_password?(password) when byte_size(password) > 10 do
     {:ok, password}
   end
-  def valid_password?(_), do: {:error, "The password is too short"}
+  def valid_password?(_), do: {:error, "Password must be at least 10 characters long"}
 
   def put_pass_hash(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
     change(changeset, Comeonin.Argon2.add_hash(password))
   end
   def put_pass_hash(changeset), do: changeset
 
-  def pw_attempt(user) do
+  def pw_attempt(user, password) do
     now = DateTime.utc_now()
-    cond do
-      user.pw_last_try == nil or DateTime.diff(now, user.pw_last_try, :second) >= 3600 ->
-        user
-        |> change(pw_tries: 1)
-      true ->
-        user
-        |> change(pw_tries: user.pw_tries + 1)
+    tries = cond do
+      user.pw_last_try != nil and DateTime.diff(now, user.pw_last_try, :second) > 3600 -> 0
+      true -> user.pw_tries
     end
-    |> change(pw_last_try: now)
+
+    cond do
+      tries < 20 ->
+        case Comeonin.Argon2.check_pass(user, password) do
+          {:ok, _} ->
+            user = user
+                   |> change(pw_last_try: now)
+                   |> change(pw_tries: tries)
+            {:ok, user}
+          _ ->
+            user = user
+                   |> change(pw_last_try: now)
+                   |> change(pw_tries: tries + 1)
+            {:login_failed, user}
+        end
+      true -> {:locked_out, change(user)}
+    end
   end
 end

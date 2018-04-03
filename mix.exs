@@ -20,7 +20,7 @@ defmodule TaskTrack.Mixfile do
   def application do
     [
       mod: {TaskTrack.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :guardian]
     ]
   end
 
@@ -43,7 +43,8 @@ defmodule TaskTrack.Mixfile do
       {:cowboy, "~> 1.0"},
       {:distillery, "~> 1.5", runtime: false},
       {:comeonin, "~>4.0"},
-      {:argon2_elixir, "~> 1.2"}
+      {:argon2_elixir, "~> 1.2"},
+      {:guardian, "~> 1.0"}
     ]
   end
 
