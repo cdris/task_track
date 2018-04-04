@@ -2,67 +2,70 @@ defmodule TaskTrackWeb.TaskController do
   use TaskTrackWeb, :controller
 
   alias TaskTrack.Tasks
-  alias TaskTrack.Tasks.Task
 
-  def index(conn, params) do
-    IO.inspect(params)
-    show_completed = params["task_filter"]["show_completed"] || false
-    show_reported_by_you = params["task_filter"]["show_reported_by_you"] || false
-    tasks = Tasks.list_tasks(get_session(conn, :user_id), show_completed, show_reported_by_you)
-    render(conn, "index.html", tasks: tasks)
+  def get_tasks(conn, params) do
+    user = Guardian.Plug.current_resource(conn)
+    show_completed = params["completed"] || false
+    show_reported = params["reported"] || false
+    tasks = Tasks.list_tasks(user.id, show_completed, show_reported)
+    render(conn, "tasks.json", tasks: tasks)
   end
 
-  def new(conn, _params) do
-    changeset = Tasks.change_task(%Task{})
-    users = TaskTrack.Accounts.list_users()
-    render(conn, "new.html", changeset: changeset, users: users)
+  def get_task(conn, %{"task_id" => task_id}) do
+    case Tasks.get_task(task_id) do
+      nil ->
+        conn
+        |> put_status(404)
+        |> render(conn, "error.json", message: "No such task")
+      task -> render(conn, "task.json", task: task)
+    end
   end
 
-  def create(conn, %{"task" => task_params}) do
-    task_params = Map.put(task_params, "reporter_id", get_session(conn, :user_id))
+  def create_task(conn, %{"task" => task_params}) do
+    user = Guardian.Plug.current_resource(conn)
+    task_params = Map.put(task_params, "reporter_id", user.id)
     case Tasks.create_task(task_params) do
-      {:ok, task} ->
+      {:ok, _task} ->
         conn
-        |> put_flash(:info, "Task created successfully.")
-        |> redirect(to: task_path(conn, :index))
+        |> render("ok.json")
       {:error, %Ecto.Changeset{} = changeset} ->
-        users = TaskTrack.Accounts.list_users()
-        render(conn, "new.html", changeset: changeset, users: users)
+        conn
+        |> put_status(400)
+        |> render("error.json", changeset: changeset)
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    task = Tasks.get_task!(id)
-    render(conn, "show.html", task: task)
-  end
-
-  def edit(conn, %{"id" => id}) do
-    task = Tasks.get_task!(id)
-    changeset = Tasks.change_task(task)
-    users = TaskTrack.Accounts.list_users()
-    render(conn, "edit.html", task: task, changeset: changeset, users: users)
-  end
-
-  def update(conn, %{"id" => id, "task" => task_params}) do
-    task = Tasks.get_task!(id)
-    task_params = Map.put(task_params, "reporter_id", get_session(conn, :user_id))
-    case Tasks.update_task(task, task_params) do
-      {:ok, task} ->
+  def edit_task(conn, %{"task_id" => task_id, "task" => task_params}) do
+    case Tasks.get_task(task_id) do
+      nil ->
         conn
-        |> put_flash(:info, "Task updated successfully.")
-        |> redirect(to: task_path(conn, :index))
-      {:error, %Ecto.Changeset{} = changeset} ->
-        users = TaskTrack.Accounts.list_users()
-        render(conn, "edit.html", task: task, changeset: changeset, users: users)
+        |> put_status(404)
+        |> render("error.json", message: "No such task")
+      task ->
+        user = Guardian.Plug.current_resource(conn)
+        task_params = Map.put(task_params, "reporter_id", user.id)
+        case Tasks.update_task(task, task_params) do
+          {:ok, _task} ->
+            conn
+            |> render("ok.json")
+          {:error, %Ecto.Changeset{} = changeset} ->
+            conn
+            |> put_status(400)
+            |> render("error.json", changeset: changeset)
+        end
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    task = Tasks.get_task!(id)
-    {:ok, _task} = Tasks.delete_task(task)
-
-    conn
-    |> put_flash(:info, "Task deleted successfully.")
-    |> redirect(to: task_path(conn, :index))
+  def delete_task(conn, %{"task_id" => task_id}) do
+    case Tasks.get_task(task_id) do
+      nil ->
+        conn
+        |> put_status(404)
+        |> render("error.json", message: "No such task")
+      task ->
+        {:ok, _task} = Tasks.delete_task(task)
+        conn
+        |> render("ok.json")
+    end
   end
 end

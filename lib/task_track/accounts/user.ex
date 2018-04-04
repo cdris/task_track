@@ -40,7 +40,7 @@ defmodule TaskTrack.Accounts.User do
     end)
   end
 
-  def valid_password?(password) when byte_size(password) > 10 do
+  def valid_password?(password) when byte_size(password) >= 10 do
     {:ok, password}
   end
   def valid_password?(_), do: {:error, "Password must be at least 10 characters long"}

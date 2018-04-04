@@ -1,15 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider, connect } from 'react-redux';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { withRouter } from 'react-router';
 import { Alert } from 'reactstrap';
-import store from '../store';
+import AuthRoute from './auth_route';
 import Nav from './nav';
 import Login from './login';
+import Register from './register';
 import TaskList from './task_list';
 import NewTask from './new_task';
 import EditTask from './edit_task';
+import api from '../api_server';
 
 let MessageAlerts = connect((state) => state)((props) => {
   let success = props.success ?
@@ -30,9 +32,11 @@ class TaskTrackCore extends React.Component {
 
   componentWillUpdate(nextProps, nextState) {
     if (this.props.location != nextProps.location) {
-      console.log('location change');
-      store.dispatch({type: 'RESET_ERROR'});
-      store.dispatch({type: 'RESET_SUCCESS'});
+      if (nextProps.location.pathname != '/tasks') {
+        this.props.dispatch({type: 'RESET_SUCCESS'});
+      }
+      this.props.dispatch({type: 'RESET_ERROR'});
+      this.props.dispatch({type: 'RESET_FORMS'});
     }
   }
 
@@ -42,11 +46,14 @@ class TaskTrackCore extends React.Component {
         <Nav />
         <div className="mt-3 container">
           <MessageAlerts />
-          <Route path="/" exact={true} render={() => <Login />} />
-          <Route path="/tasks" exact={true} render={() => <TaskList />} />
-          <Route path="/tasks/new" exact={true} render={() => <NewTask />} />
-          <Route path="/tasks/:task_id/edit" exact={true}
-                 render={({match}) => <EditTask task_id={match.params.task_id} />} />
+          <Switch>
+            <AuthRoute path="/tasks/new" exact={true} render={() => <NewTask />} />
+            <AuthRoute path="/tasks/edit/:task_id" exact={true}
+                       render={({match}) => <EditTask task_id={match.params.task_id} />} />
+            <AuthRoute path="/tasks" exact={true} render={() => <TaskList />} />
+            <Route path="/register" exact={true} render={() => <Register />} />
+            <Route path="/" exact={true} render={() => <Login />} />
+          </Switch>
         </div>
       </div>
     );

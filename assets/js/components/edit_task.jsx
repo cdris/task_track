@@ -1,13 +1,24 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Jumbotron, Form, FormGroup, Input, Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import api from '../api_server';
+import TaskForm from './task_form';
 
-function EditTask(props) {
-  return (
-    <div>Edit Task</div>
-  );
+class EditTask extends React.Component {
+
+  constructor(props) {
+    super(props);
+    api.requestTask(this.props.task_id);
+  }
+
+  render() {
+
+    return (
+      <div>
+        <h2>Edit Task</h2>
+        <TaskForm type={this.props.task_id}/>
+      </div>
+    );
+  }
 }
 
-export default EditTask;
+export default connect((state) => state)(EditTask);

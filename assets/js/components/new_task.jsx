@@ -1,13 +1,25 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Jumbotron, Form, FormGroup, Input, Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import api from '../api_server';
+import TaskForm from './task_form';
 
-function NewTask(props) {
-  return (
-    <div>New Task</div>
-  );
+class NewTask extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.props.dispatch({
+      type: 'RESET_FORMS'
+    });
+  }
+
+  render() {
+    return (
+      <div>
+        <h2>New Task</h2>
+        <TaskForm type="new" />
+      </div>
+    );
+  }
 }
 
-export default NewTask;
+export default connect((state) => state)(NewTask);

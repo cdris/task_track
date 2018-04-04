@@ -1,8 +1,7 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { Redirect, NavLink } from 'react-router-dom';
 import { NavItem, Navbar } from 'reactstrap';
 import { connect } from 'react-redux';
-import api from '../api_server';
 
 function SignUp(props) {
   return (
@@ -16,28 +15,47 @@ function SignUp(props) {
   );
 }
 
-let LogOut = connect(({user}) => {return {user};})((props) => {
-  return (
-    <nav className="ml-auto navbar-nav">
-      <NavItem>
-        <span className="navbar-text text-warning">
-          Hi, {props.user.username}!
-        </span>
-      </NavItem>
-      <NavItem>
-        <NavLink to="/" exact={true} className="nav-link">
-          Log Out
-        </NavLink>
-      </NavItem>
-    </nav>
-  );
-});
+class LogOut extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {redirect: false};
+  }
+
+  logOut() {
+    this.props.dispatch({type: 'DELETE_USER'});
+    this.setState({redirect: true});
+  }
+
+  render() {
+    if (this.state.redirect) {
+      return <Redirect to="/" />;
+    }
+    return (
+      <nav className="ml-auto navbar-nav">
+        <NavItem>
+          <span className="navbar-text text-warning">
+            Hi, {this.props.user.username}!
+          </span>
+        </NavItem>
+        <NavItem>
+          <span onClick={this.logOut.bind(this)}
+                  color="link" className="nav-link">
+            Log Out
+          </span>
+        </NavItem>
+      </nav>
+    );
+  }
+}
+
+let ConnectedLogOut = connect(({user}) => {return {user};})(LogOut);
 
 function Nav(props) {
-  let navRight = props.user ? <LogOut /> : <SignUp />
+  let navRight = props.user ? <ConnectedLogOut /> : <SignUp />
   return (
     <Navbar color="dark" dark expand="sm">
-      <NavLink className="navbar-brand" to="/" exact={true}>
+      <NavLink className="navbar-brand" to="/tasks" exact={true}>
         Task Tracker
       </NavLink>
       { navRight }

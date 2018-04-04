@@ -15,6 +15,10 @@ defmodule TaskTrackWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :unauthenticated do
+    plug Guardian.Plug.EnsureNotAuthenticated
+  end
+
   pipeline :authenticated do
     plug Guardian.Plug.Pipeline, module: TaskTrack.Guardian, error_handler: TaskTrackWeb.AuthErrorHandler
     plug Guardian.Plug.VerifyHeader, realm: "Bearer"
@@ -22,24 +26,25 @@ defmodule TaskTrackWeb.Router do
     plug Guardian.Plug.LoadResource
   end
 
-  scope "/", TaskTrackWeb do
-    pipe_through :browser # Use the default browser stack
-
-    get "/", PageController, :index
-    post "/session", SessionController, :create
-    delete "/session", SessionController, :delete
-    resources "/users", UserController, only: [:new, :create]
-    resources "/tasks", TaskController
-  end
-
   # Other scopes may use custom stacks.
   scope "/api/v1", TaskTrackWeb do
-    pipe_through([:api])
-    post "/session", SessionController, :create_json
+    pipe_through([:api, :unauthenticated])
+    post "/session", SessionController, :create_session
+    post "/users/new", UserController, :create_user
   end
 
   scope "/api/v1", TaskTrackWeb do
     pipe_through([:api, :authenticated])
-    get "/session", SessionController, :get_json
+    post "/tasks", TaskController, :get_tasks
+    get "/tasks/:task_id", TaskController, :get_task
+    post "/tasks/new", TaskController, :create_task
+    post "/tasks/:task_id", TaskController, :edit_task
+    delete "/tasks/:task_id", TaskController, :delete_task
+    get "/users", UserController, :get_users
+  end
+
+  scope "/", TaskTrackWeb do
+    pipe_through :browser # Use the default browser stack
+    get "/*path", PageController, :index
   end
 end

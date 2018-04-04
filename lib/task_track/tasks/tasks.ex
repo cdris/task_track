@@ -52,6 +52,16 @@ defmodule TaskTrack.Tasks do
     |> Repo.preload(:reporter)
   end
 
+  def get_task(id) do
+    case Repo.get(Task, id) do
+      nil -> nil
+      task ->
+        task
+        |> Repo.preload(:assignee)
+        |> Repo.preload(:reporter)
+    end
+  end
+
   @doc """
   Creates a task.
 
