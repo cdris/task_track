@@ -28,7 +28,7 @@ defmodule TaskTrackWeb.SessionController do
       {:ok, user} ->
         {:ok, jwt, _full_claims} = TaskTrack.Guardian.encode_and_sign(user)
         conn
-        |> render("session_created.json", user: user, jwt: jwt)
+        |> render("created.json", user: user, jwt: jwt)
       {:locked_out, _} ->
         conn
         |> put_status(401)

@@ -1,10 +1,14 @@
 defmodule TaskTrackWeb.SessionView do
   use TaskTrackWeb, :view
 
-  def render("session_created.json", %{user: user, jwt: jwt}) do
+  def render("created.json", %{user: user, jwt: jwt}) do
     %{
       status: :ok,
-      data: %{token: jwt}
+      data: %{
+        user_id: user.id,
+        username: user.name,
+        token: jwt
+      }
     }
   end
 
