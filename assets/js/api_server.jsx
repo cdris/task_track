@@ -112,7 +112,6 @@ class APIServer {
         onSuccess();
       },
       error: (resp) => {
-        console.log("register error", resp);
         revokeToken(resp);
         if (resp.status != 401) {
           onError(resp.responseJSON.fields);
@@ -135,10 +134,31 @@ class APIServer {
         onSuccess();
       },
       error: (resp) => {
-        console.log("task error", resp);
         revokeToken(resp);
         if (resp.status != 401) {
           onError(resp.responseJSON.fields);
+        }
+      }
+    });
+  }
+
+  deleteTask(task_id, onSuccess) {
+    $.ajax(`/api/v1/tasks/${task_id}`, {
+      method: "delete",
+      success: (resp) => {
+        store.dispatch({
+          type: 'SUCCESS_MSG',
+          success: 'Task deleted successfully'
+        });
+        onSuccess();
+      },
+      error: (resp) => {
+        revokeToken(resp);
+        if (resp.status != 401) {
+          store.dispatch({
+            type: 'ERROR_MSG',
+            error: 'Could not delete task'
+          });
         }
       }
     });

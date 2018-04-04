@@ -68,6 +68,12 @@ class Register extends React.Component {
             {this.feedback("password")}
           </FormGroup>
           <FormGroup>
+            <Label for="password_confirmation">Confirm Password:</Label>
+            <Input type="password" name="password_confirmation" placeholder="confirm password"
+                   value={register.password_confirmation} onChange={update} />
+            {this.feedback("password_confirmation")}
+          </FormGroup>
+          <FormGroup>
             <Button onClick={this.submitRegister.bind(this)} color="primary">
               Submit
             </Button>

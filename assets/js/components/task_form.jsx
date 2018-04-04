@@ -43,7 +43,6 @@ class TaskForm extends React.Component {
   }
 
   feedback(field) {
-    console.log("ERRORS");
     if (this.state.errors[field]) {
       return <FormFeedback>{this.state.errors[field][0]}</FormFeedback>
     }

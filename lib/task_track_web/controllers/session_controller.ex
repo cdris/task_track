@@ -5,7 +5,6 @@ defmodule TaskTrackWeb.SessionController do
 
   def create_session(conn, %{"email" => email, "password" => password}) do
     result = Accounts.get_and_auth_user(email, password)
-    IO.inspect(result)
     case result do
       {:ok, user} ->
         {:ok, jwt, _full_claims} = TaskTrack.Guardian.encode_and_sign(user)

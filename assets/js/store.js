@@ -26,7 +26,8 @@ import deepFreeze from 'deep-freeze';
  *   register: {
  *     name: "",
  *     email: "",
- *     password: ""
+ *     password: "",
+ *     password_confirmation: ""
  *   },
  *   filter: {
  *     completed: false,
@@ -82,7 +83,6 @@ function user(state = null, action) {
     case 'SET_USER':
       return action.user;
     case 'DELETE_USER':
-      console.log('deleting user');
       return null;
     default:
       return state;
@@ -108,7 +108,8 @@ function login(state = emptyLogin, action) {
 let emptyRegister = {
   name: "",
   email: "",
-  password: ""
+  password: "",
+  password_confirmation: ""
 };
 
 function register(state = emptyRegister, action) {
@@ -131,6 +132,8 @@ function filter(state = emptyFilter, action) {
   switch (action.type) {
     case 'UPDATE_FILTER':
       return Object.assign({}, state, action.data);
+    case 'DELETE_USER':
+      return emptyFilter;
     default:
       return state;
   }
@@ -163,13 +166,10 @@ function error(state = "", action) {
 }
 
 function rootReducer(state0, action) {
-  //console.log("reducer", action);
   let reducer = combineReducers({
     tasks, task, users, user, login, register, filter, success, error
   });
   let state1 = reducer(state0, action);
-  //console.log("state1", state1);
-  console.log("STATE", state1);
   return deepFreeze(state1);
 }
 

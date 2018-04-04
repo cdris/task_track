@@ -22,11 +22,11 @@ defmodule TaskTrack.Accounts.User do
   def changeset(%User{} = user, attrs) do
     user
     |> cast(attrs, [:email, :name, :password, :password_confirmation])
+    |> validate_required([:email, :name, :password, :password_confirmation])
     |> unique_constraint(:email)
     |> validate_confirmation(:password)
     |> validate_password(:password)
     |> put_pass_hash()
-    |> validate_required([:email, :name])
   end
 
   # Password validation

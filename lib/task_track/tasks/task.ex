@@ -19,11 +19,11 @@ defmodule TaskTrack.Tasks.Task do
   @doc false
   def changeset(%Task{} = task, attrs) do
     task
-    |> cast(attrs, [:title, :description, :assignee_id, :assignee_email,
+    |> cast(attrs, [:title, :description, :assignee_email,
                     :reporter_id, :time_worked, :completed])
-    |> validate_required([:title, :description, :time_worked, :completed])
+    |> validate_required([:title, :description, :time_worked, :completed, :assignee_email])
     |> validate_mod_15(:time_worked)
-    |> change_user_id_email(:assignee_id, :assignee_email)
+    |> put_assignee_id()
     |> validate_user_id(:reporter_id)
   end
 
@@ -37,24 +37,15 @@ defmodule TaskTrack.Tasks.Task do
     end)
   end
 
-  def change_user_id_email(changeset, id_field, email_field) do
-    IO.inspect(changeset)
-    email = get_field(changeset, email_field)
-    id = get_field(changeset, id_field)
-    cond do
-      email == nil && id == nil ->
-        add_error(changeset, email_field, "can't be blank")
-      id != nil ->
-        user = TaskTrack.Accounts.get_user(id)
-        case user do
-          nil -> add_error(changeset, email_field, "Invalid user")
-          _ -> change(changeset, %{email_field => user.email})
-        end
-      email != nil ->
+  def put_assignee_id(changeset) do
+    case get_field(changeset, :assignee_email) do
+      nil ->
+        add_error(changeset, :assignee_email, "can't be blank")
+      email ->
         user = TaskTrack.Accounts.get_user_by_email(email)
         case user do
-          nil -> add_error(changeset, email_field, "Invalid user")
-          _ -> change(changeset, %{id_field => user.id})
+          nil -> add_error(changeset, :assignee_email, "Invalid user")
+          _ -> change(changeset, %{:assignee_id => user.id})
         end
     end
   end

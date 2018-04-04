@@ -7,7 +7,6 @@ import api from '../api_server';
 class TaskList extends React.Component {
 
   componentWillMount() {
-    console.log('MOUNTING');
     this.filter();
   }
 
@@ -27,10 +26,11 @@ class TaskList extends React.Component {
 
   render() {
 
-    let rows = _.map(this.props.tasks, (task) => {
-      return <TaskRow key={task.id} task={task} />;
-    });
     let update = this.update.bind(this);
+    let filter = this.filter.bind(this);
+    let rows = _.map(this.props.tasks, (task) => {
+      return <TaskRow key={task.id} task={task} reload={filter}/>;
+    });
 
     return (
       <div>
@@ -52,7 +52,7 @@ class TaskList extends React.Component {
                        checked={this.props.filter.reported} />
                 <Label for="reported">Show reported by you</Label>
               </FormGroup>
-              <Button onClick={this.filter.bind(this)}
+              <Button onClick={filter}
                       color="primary"
                       className="btn-sm">
                 Filter
@@ -88,7 +88,7 @@ class TaskList extends React.Component {
 class TaskRow extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {task: props.task, redirect: false};
+    this.state = {redirect: false};
   }
 
   editTask() {
@@ -96,11 +96,14 @@ class TaskRow extends React.Component {
   }
 
   deleteTask() {
-
+    api.deleteTask(
+      this.props.task.id,
+      (() => this.props.reload()).bind(this)
+    );
   }
 
   render() {
-    let task = this.state.task;
+    let task = this.props.task;
 
     if (this.state.redirect) {
       return <Redirect to={`/tasks/edit/${task.id}`} />;

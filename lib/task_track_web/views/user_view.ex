@@ -18,7 +18,6 @@ defmodule TaskTrackWeb.UserView do
   end
 
   def render("error.json", %{changeset: changeset}) do
-    IO.inspect(changeset)
     %{
       status: :error,
       fields: Ecto.Changeset.traverse_errors(changeset, &translate_error/1)
