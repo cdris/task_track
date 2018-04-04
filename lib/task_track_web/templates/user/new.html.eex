@@ -1,5 +1,0 @@
-<h2>Register</h2>
-
-<%= render "form.html", Map.put(assigns, :action, user_path(@conn, :create)) %>
-
-<span><%= link "Cancel", to: "/" %></span>
