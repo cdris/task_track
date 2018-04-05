@@ -1,4 +1,7 @@
 # TaskTrack
+For the most part design decisions for the UI are the same as the original version of the Task Tracker. Backend logic remained mostly the same, just shifted to accommodate api instead of html. I chose to use the Guardian library for tokens based on tutorials and documentation I found, as I had not yet seen Professor Tuck's notes on Phoenix tokens. I prefer Guardian. It's usage feels much cleaner to me.
+
+## Set Up
 
 To start your Phoenix server:
 

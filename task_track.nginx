@@ -2,7 +2,7 @@ server {
 	listen 80;
 	listen [::]:80;
 
-	server_name task_track.cdriskill.com;
+	server_name tasktrack.cdriskill.com;
 
 	location / {
 		proxy_pass http://localhost:5101;
